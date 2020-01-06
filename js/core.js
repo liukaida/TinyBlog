@@ -18,7 +18,7 @@ $(document).ready(function() {
     blogListURL = 'https://api.github.com/repos/' + user + '/TinyBlog/contents/blog';
     issuesList = 'https://api.github.com/repos/' + user + '/TinyBlog/issues';
     issuesHTML = 'https://github.com/' + user + '/TinyBlog/issues'
-    readmeURL = 'https://raw.githubusercontent.com/' + user + '/TinyBlog/master/About Me.md';
+    readmeURL = 'https://raw.githubusercontent.com/' + user + '/TinyBlog/master/AboutMe.md';
 
 
     $("#header").text(user + "'s Blog");
