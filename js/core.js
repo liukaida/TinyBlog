@@ -13,6 +13,12 @@ $(document).ready(function() {
     issuesList = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/issues';
     issuesHTML = 'https://github.com/' + user + '/' + user + '.github.io/issues'
     readmeURL = 'https://raw.githubusercontent.com/' + user + '/' + user + '.github.io/master/About Me.md';
+    
+    // use liukaida api path
+    blogListURL = 'https://api.github.com/repos/' + user + '/TinyBlog/contents/blog';
+    issuesList = 'https://api.github.com/repos/' + user + '/TinyBlog/issues';
+    issuesHTML = 'https://github.com/' + user + '/TinyBlog/issues'
+    readmeURL = 'https://raw.githubusercontent.com/' + user + '/TinyBlog/master/About Me.md';
 
 
     $("#header").text(user + "'s Blog");
