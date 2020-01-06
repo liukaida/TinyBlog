@@ -8,17 +8,18 @@ $(document).ready(function() {
         splitFlag = "https://";
     }
     var user = webURL.split(splitFlag)[1].split(".")[0];
-    //user = 'yanghanqing';
-    blogListURL = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/contents/blog';
-    issuesList = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/issues';
-    issuesHTML = 'https://github.com/' + user + '/' + user + '.github.io/issues'
-    readmeURL = 'https://raw.githubusercontent.com/' + user + '/' + user + '.github.io/master/About Me.md';
+    user = 'liukaida';
+    // blogListURL = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/contents/blog';
+    // issuesList = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/issues';
+    // issuesHTML = 'https://github.com/' + user + '/' + user + '.github.io/issues'
+    // readmeURL = 'https://raw.githubusercontent.com/' + user + '/' + user + '.github.io/master/About Me.md';
     
     // use liukaida api path
     blogListURL = 'https://api.github.com/repos/' + user + '/TinyBlog/contents/blog';
     issuesList = 'https://api.github.com/repos/' + user + '/TinyBlog/issues';
-    issuesHTML = 'https://github.com/' + user + '/TinyBlog/issues'
+    issuesHTML = 'https://github.com/' + user + '/TinyBlog/issues';
     readmeURL = 'https://raw.githubusercontent.com/' + user + '/TinyBlog/master/AboutMe.md';
+    aboutmeURL = 'https://api.github.com/repos/' + user + '/TinyBlog/contents/AboutMe.md?ref=master';
 
 
     $("#header").text(user + "'s Blog");
@@ -28,10 +29,11 @@ $(document).ready(function() {
     var titleString = getTitleString();
 
     //set Blog list    
-    $.getJSON(blogListURL, function(json) {
+        $.getJSON(blogListURL, function(json) {
         for (var i = 0; i < json.length; i++) {
             var name = json[i].name; // Blog title
             var blogURL = json[i].download_url; //Blog Raw Url
+            var contentURL = json[i].url; //Blog Raw Url
             // add blog list elements
             var new_li = $("<li></li>");
             var new_a = $("<a></a>")
@@ -58,6 +60,7 @@ $(document).ready(function() {
             //new_a.attr("href", "?title=" + name);
             new_a.attr("href", "#");
             new_a.attr("data_type", type);
+            new_a.attr("data_contentURL", contentURL);
             new_a.attr("onclick", "setBlogTxt(this)");
             new_li.append(new_a);
             $('#nav').append(new_li);
@@ -69,12 +72,16 @@ $(document).ready(function() {
 
 
         //set readme 
-        $.get(readmeURL, function(result) {
+        $.get(aboutmeURL, function(result) {
             $("#title").show();
             $("#article").html("");
 
+            // base64转码
+            var base64 = new Base64();
+            var file_content = base64.decode(result.content);
+
             testEditormdView = editormd.markdownToHTML("article", {
-                markdown: result, //+ "\r\n" + $("#append-test").text(),
+                markdown: file_content, //+ "\r\n" + $("#append-test").text(),
                 // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
                 htmlDecode: "style,script,iframe", // you can filter tags decode
                 //toc             : false,
@@ -112,40 +119,80 @@ function setBlogTxt(obj) {
     obj = $(obj);
     var blogName = obj.attr("data_name");
     var blogURL = obj.attr("data_blogURL");
+    var contentURL = obj.attr("data_contentURL");
     var type = obj.attr("data_type");
     $("#title").text(blogName);
     $("#article").html("loading . . .");
 
-    // set blog content     
-    $.get(blogURL, function(result) {
-        $("#title").show();
-        if (type == "markdown") {
+    // set blog content
+    if (contentURL != ""){
+        // add by liukai ,有时候因为国内原因，直接获取不到文件的raw，改为通过接口获取
+        $.get(contentURL, function(result) {
+            $("#title").show();
+            if (type == "markdown") {
 
-            $("#article").html("");
+                $("#article").html("");
 
-            testEditormdView = editormd.markdownToHTML("article", {
-                markdown: result, //+ "\r\n" + $("#append-test").text(),
-                // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
-                htmlDecode: "style,script,iframe", // you can filter tags decode
-                //toc             : false,
-                tocm: true, // Using [TOCM]
-                //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
-                //gfm             : false,
-                //tocDropdown     : true,
-                // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
-                emoji: true,
-                taskList: true,
-                tex: true, // 默认不解析
-                flowChart: true, // 默认不解析
-                sequenceDiagram: true, // 默认不解析
-            });
+                // base64转码
+                var base64 = new Base64();
+                var file_content = base64.decode(result.content);
 
-        } else {
-            $("#title").hide();
-            $("#article").html(result);
-        }
+                testEditormdView = editormd.markdownToHTML("article", {
+                    markdown: file_content, //+ "\r\n" + $("#append-test").text(),
+                    // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
+                    htmlDecode: "style,script,iframe", // you can filter tags decode
+                    //toc             : false,
+                    tocm: true, // Using [TOCM]
+                    //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+                    //gfm             : false,
+                    //tocDropdown     : true,
+                    // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+                    emoji: true,
+                    taskList: true,
+                    tex: true, // 默认不解析
+                    flowChart: true, // 默认不解析
+                    sequenceDiagram: true, // 默认不解析
+                });
 
-    });
+            } else {
+                $("#title").hide();
+                $("#article").html(result);
+            }
+
+        });
+
+    }else {
+        $.get(blogURL, function(result) {
+            $("#title").show();
+            if (type == "markdown") {
+
+                $("#article").html("");
+
+                testEditormdView = editormd.markdownToHTML("article", {
+                    markdown: result, //+ "\r\n" + $("#append-test").text(),
+                    // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
+                    htmlDecode: "style,script,iframe", // you can filter tags decode
+                    //toc             : false,
+                    tocm: true, // Using [TOCM]
+                    //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+                    //gfm             : false,
+                    //tocDropdown     : true,
+                    // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+                    emoji: true,
+                    taskList: true,
+                    tex: true, // 默认不解析
+                    flowChart: true, // 默认不解析
+                    sequenceDiagram: true, // 默认不解析
+                });
+
+            } else {
+                $("#title").hide();
+                $("#article").html(result);
+            }
+
+        });
+    }
+
 
 
 
