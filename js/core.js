@@ -113,7 +113,15 @@ $(document).ready(function() {
 
 })
 
+function collapseDir(obj){
+    obj = $(obj);
+    var new_obj_text = "+" + obj.text().substr(1, obj.text().length);
+    obj.text(new_obj_text);
+    obj.attr("data_name", new_obj_text);
+    obj.attr("onclick", "setBlogTxt(this)");
+    obj.nextAll().remove();
 
+}
 
 function setBlogTxt(obj) {
 
@@ -190,6 +198,10 @@ function setBlogTxt(obj) {
                     name = name.substr(0, name.length - 5);
                     type = "html";
                 }
+
+                if (type == "dir"){
+                    name = "+" + name;
+                }
                 // console.log(name);
                 console.log(type);
                 // console.log(titleString);
@@ -216,7 +228,7 @@ function setBlogTxt(obj) {
             var new_obj_text = "-" + obj.text().substr(1, obj.text().length);
             obj.text(new_obj_text);
             obj.attr("data_name", new_obj_text);
-            obj.attr("onclick", "#");  // 不允许重复点击了
+            obj.attr("onclick", "collapseDir(this)");  // 再次点击的话收起来
             // console.log(new_li)
             // $('#nav2').append(new_li.clone());
 
