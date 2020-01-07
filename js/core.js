@@ -47,6 +47,10 @@ $(document).ready(function() {
                 name = name.substr(0, name.length - 5);
                 type = "html";
             }
+
+            if (type == "dir"){
+                name = "+" + name;
+            }
             // console.log(name);
             console.log(type);
             // console.log(titleString);
@@ -73,7 +77,7 @@ $(document).ready(function() {
         }
 
 
-        //set readme 
+        //set readme
         $.get(aboutmeURL, function(result) {
             $("#title").show();
             $("#article").html("");
@@ -165,7 +169,10 @@ function setBlogTxt(obj) {
     }else if (contentURL != "" && type == "dir") {
         // 如果点击的是目录，则展开子目录
         $("#article").html("请选择目录内文章");
+
         $.getJSON(contentURL, function(json) {
+            var new_ul = $("<ul class=\"nav nav-sidebar\" id=\"nav\"></ul>");
+
             for (var i = 0; i < json.length; i++) {
                 var name = json[i].name; // Blog title
                 var blogURL = json[i].download_url; //Blog Raw Url
@@ -201,13 +208,23 @@ function setBlogTxt(obj) {
                 new_a.attr("data_contentURL", contentURL);
                 new_a.attr("onclick", "setBlogTxt(this)");
                 new_li.append(new_a);
-                obj.append(new_li.clone());
-                console.log(new_li)
-                // $('#nav2').append(new_li.clone());
-
+                new_ul.append(new_li.clone());
 
             }
+
+            // 展开文件夹，并禁止文件夹点击了。后续可以优化成点击后收起来！
+            var new_obj_text = "-" + obj.text().substr(1, obj.text().length);
+            obj.text(new_obj_text);
+            obj.attr("data_name", new_obj_text);
+            obj.attr("onclick", "#");  // 不允许重复点击了
+            // console.log(new_li)
+            // $('#nav2').append(new_li.clone());
+
+            obj.after(new_ul.clone());
+
         });
+
+
     }else {
         $.get(blogURL, function(result) {
             $("#title").show();
