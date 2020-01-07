@@ -8,7 +8,7 @@ $(document).ready(function() {
         splitFlag = "https://";
     }
     var user = webURL.split(splitFlag)[1].split(".")[0];
-    user = 'liukaida';
+    user = 'liukaida';  // 本行为调试用，如果提交到github，请注释掉本行
     // blogListURL = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/contents/blog';
     // issuesList = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/issues';
     // issuesHTML = 'https://github.com/' + user + '/' + user + '.github.io/issues'
@@ -28,7 +28,7 @@ $(document).ready(function() {
 
     var titleString = getTitleString();
 
-    //set Blog list    
+    //set Blog list
         $.getJSON(blogListURL, function(json) {
         for (var i = 0; i < json.length; i++) {
             var name = json[i].name; // Blog title
@@ -38,15 +38,17 @@ $(document).ready(function() {
             var new_li = $("<li></li>");
             var new_a = $("<a></a>")
 
-            var type = "markdown";
+            var type = json[i].type;
             // delete '.md'
             if (name.substr(-3, 3) == ".md") {
                 name = name.substr(0, name.length - 3);
+                type = "markdown";
             } else if (name.substr(-5, 5) == ".html") {
                 name = name.substr(0, name.length - 5);
                 type = "html";
             }
             // console.log(name);
+            console.log(type);
             // console.log(titleString);
             if (name == titleString) {
                 $("#title").text(name);
@@ -125,9 +127,9 @@ function setBlogTxt(obj) {
     $("#article").html("loading . . .");
 
     // set blog content
-    if (contentURL != ""){
+    if (contentURL != "" && (type == "markdown" || type == "html")) {
         // add by liukai ,有时候因为国内原因，直接获取不到文件的raw，改为通过接口获取
-        $.get(contentURL, function(result) {
+        $.get(contentURL, function (result) {
             $("#title").show();
             if (type == "markdown") {
 
@@ -160,7 +162,52 @@ function setBlogTxt(obj) {
             }
 
         });
+    }else if (contentURL != "" && type == "dir") {
+        // 如果点击的是目录，则展开子目录
+        $("#article").html("请选择目录内文章");
+        $.getJSON(contentURL, function(json) {
+            for (var i = 0; i < json.length; i++) {
+                var name = json[i].name; // Blog title
+                var blogURL = json[i].download_url; //Blog Raw Url
+                var contentURL = json[i].url; //Blog Raw Url
+                // add blog list elements
+                var new_li = $("<li></li>");
+                var new_a = $("<a></a>")
 
+                var type = json[i].type;
+                // delete '.md'
+                if (name.substr(-3, 3) == ".md") {
+                    name = name.substr(0, name.length - 3);
+                    type = "markdown";
+                } else if (name.substr(-5, 5) == ".html") {
+                    name = name.substr(0, name.length - 5);
+                    type = "html";
+                }
+                // console.log(name);
+                console.log(type);
+                // console.log(titleString);
+                // if (name == titleString) {
+                //     $("#title").text(name);
+                //     readmeURL = blogURL;
+                // }
+
+                new_a.text(name);
+                //update content
+                new_a.attr("data_blogURL", blogURL);
+                new_a.attr("data_name", name);
+                //new_a.attr("href", "?title=" + name);
+                new_a.attr("href", "#");
+                new_a.attr("data_type", type);
+                new_a.attr("data_contentURL", contentURL);
+                new_a.attr("onclick", "setBlogTxt(this)");
+                new_li.append(new_a);
+                obj.append(new_li.clone());
+                console.log(new_li)
+                // $('#nav2').append(new_li.clone());
+
+
+            }
+        });
     }else {
         $.get(blogURL, function(result) {
             $("#title").show();
