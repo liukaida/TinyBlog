@@ -74,18 +74,13 @@ body {
 .nav-sidebar {
     margin-right: -21px;
     /* 20px padding + 1px border */
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     margin-left: -20px;
 }
 
 .nav-sidebar>li>a {
     padding-right: 20px;
     padding-left: 20px;
-}
-
-.nav-sidebar>li>ul>li>a {
-    padding-right: 20px;
-    padding-left: 60px;
 }
 
 .nav-sidebar>.active>a,

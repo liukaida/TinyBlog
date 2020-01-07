@@ -8,7 +8,7 @@ $(document).ready(function() {
         splitFlag = "https://";
     }
     var user = webURL.split(splitFlag)[1].split(".")[0];
-    user = 'liukaida';  // 本行为调试用，如果提交到github，请注释掉本行
+    // user = 'liukaida';  // 本行为调试用，如果提交到github，请注释掉本行
     // blogListURL = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/contents/blog';
     // issuesList = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/issues';
     // issuesHTML = 'https://github.com/' + user + '/' + user + '.github.io/issues'
@@ -181,6 +181,11 @@ function setBlogTxt(obj) {
         $.getJSON(contentURL, function(json) {
             var new_ul = $("<ul class=\"nav nav-sidebar\" id=\"nav\"></ul>");
 
+            // 设置样式，计算子节点的padding是父节节点的值加50px
+            var obj_padding_left = obj.css("padding-left").substr(0, obj.css("padding-left").length-2);
+            var sub_padding_left = (Number(obj_padding_left) + 40) + "px";
+
+
             for (var i = 0; i < json.length; i++) {
                 var name = json[i].name; // Blog title
                 var blogURL = json[i].download_url; //Blog Raw Url
@@ -219,6 +224,7 @@ function setBlogTxt(obj) {
                 new_a.attr("data_type", type);
                 new_a.attr("data_contentURL", contentURL);
                 new_a.attr("onclick", "setBlogTxt(this)");
+                new_a.css("padding-left", sub_padding_left);
                 new_li.append(new_a);
                 new_ul.append(new_li.clone());
 
