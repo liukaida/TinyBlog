@@ -1,3 +1,8 @@
+Tinyblog很方便，仅需要github就可以搭建自己的博客系统，由于我在使用时，遇到一些问题，同时自己有些想法需要改进，所以增加了一些功能。
+[详细说明传送门](https://github.com/liukaida/TinyBlog/blob/master/AboutMe.md)
+
+# 以下内容为原作者提供
+
 ## TinyBlog有什么特性
 1. 完全静态,以至于没有任何生成程序
 2. 支持Markdown常用语法
