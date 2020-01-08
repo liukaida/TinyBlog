@@ -1,4 +1,4 @@
-Tinyblog很方便，仅需要github就可以搭建自己的博客系统，由于我在使用时，遇到一些问题，同时自己有些想法需要改进，所以增加了一些功能。
+Tinyblog很方便，仅需要github就可以搭建自己的博客系统，由于我在使用时，遇到一些问题，同时自己有些想法需要改进，所以增加了一些功能。  
 [详细说明传送门](https://github.com/liukaida/TinyBlog/blob/master/AboutMe.md)  
 [demo传送门](https://liukaida.github.io/TinyBlog/)
 
