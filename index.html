@@ -34,6 +34,7 @@
 	<script src="./js/core.js"></script>
 
 	<script src="./js/base64.js"></script>
+	<script src="./js/clipboard.min.js"></script>
 
 </head>
 
@@ -63,6 +64,7 @@
 	</nav>
 
 	<div class="container-fluid ">
+
 		<div class="row">
 
 			<div class="col-sm-3 col-md-2 sidebar ">
@@ -74,7 +76,10 @@
 			</div>
 			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 				<!--正文-->
-				<h1 class="page-header" id="title">About Me</h1>
+				<div id="current-blogfile-url" style="display: none"></div>
+				<h1><span class="page-header" id="title">About Me</span>&nbsp;&nbsp;<button id="copy-btn" type="button" class="btn btn-default" data-loading-text="成功复制">复制本文地址</button></h1>
+				<!--<h1 class="page-header" id="title">About Me</h1>-->
+
 				<div id="article"> HelloWorld! 你好 世界！ </div>
 
 				<div class="panel panel-white post " id="comments">
@@ -117,8 +122,6 @@
 			</div>
 		</div>
 	</div>
-
-
 
 
 </body>

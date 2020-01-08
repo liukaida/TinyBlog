@@ -1,42 +1,51 @@
 var issuesList;
 var issuesHTML;
 
-$(document).ready(function() {
+$(document).ready(function () {
     var webURL = window.location.href;
     var splitFlag = "http://";
     if (webURL.substring(0, 5) == "https") {
         splitFlag = "https://";
     }
     var user = webURL.split(splitFlag)[1].split(".")[0];
-    // user = 'liukaida';  // 本行为调试用，如果提交到github，请注释掉本行
+    user = 'liukaida';  // 本行为调试用，如果提交到github，请注释掉本行
     // blogListURL = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/contents/blog';
     // issuesList = 'https://api.github.com/repos/' + user + '/' + user + '.github.io/issues';
     // issuesHTML = 'https://github.com/' + user + '/' + user + '.github.io/issues'
     // readmeURL = 'https://raw.githubusercontent.com/' + user + '/' + user + '.github.io/master/About Me.md';
-    
+
     // use liukaida api path
-    blogListURL = 'https://api.github.com/repos/' + user + '/TinyBlog/contents/blog';
-    issuesList = 'https://api.github.com/repos/' + user + '/TinyBlog/issues';
+    api_base_url = 'https://api.github.com/repos/' + user + '/TinyBlog/';
+    blogListURL = api_base_url + 'contents/blog';
+    issuesList = api_base_url + 'issues';
     issuesHTML = 'https://github.com/' + user + '/TinyBlog/issues';
     readmeURL = 'https://raw.githubusercontent.com/' + user + '/TinyBlog/master/AboutMe.md';
-    aboutmeURL = 'https://api.github.com/repos/' + user + '/TinyBlog/contents/AboutMe.md?ref=master';
+    aboutmeURL = api_base_url + 'contents/AboutMe.md?ref=master';
 
+    // 如果带p参数，则直接进入文章，否则默认打开readme文件
+    file_path = getUrlParam("p");
+    file_blog_url = null;
+    if (file_path) {
+        file_blog_url = api_base_url + "contents/" + file_path + "?ref=master";
+    }
 
     $("#header").text(user + "'s Blog");
+    $("#header").attr("href", getPrjUrl());
     $("#commentsList").removeAttr('data_comments_url');
     $("#tips").html("我们不会获取您的用户名和密码,评论直接通过 HTTPS 与 Github API交互,<br>如果您开启了两步验证,请在博客的<a  target=\"_blank\" href=\"" + issuesHTML + "\">Github issues</a>下添加 Comment");
 
-    var titleString = getTitleString();
+    // var titleString = getTitleString();
 
     //set Blog list
-        $.getJSON(blogListURL, function(json) {
+    $.getJSON(blogListURL, function (json) {
         for (var i = 0; i < json.length; i++) {
             var name = json[i].name; // Blog title
             var blogURL = json[i].download_url; //Blog Raw Url
             var contentURL = json[i].url; //Blog Raw Url
+
             // add blog list elements
             var new_li = $("<li></li>");
-            var new_a = $("<a></a>")
+            var new_a = $("<a></a>");
 
             var type = json[i].type;
             // delete '.md'
@@ -48,16 +57,16 @@ $(document).ready(function() {
                 type = "html";
             }
 
-            if (type == "dir"){
+            if (type == "dir") {
                 name = "+" + name;
             }
             // console.log(name);
             console.log(type);
             // console.log(titleString);
-            if (name == titleString) {
-                $("#title").text(name);
-                readmeURL = blogURL;
-            }
+            // if (name == titleString) {
+            //     $("#title").text(name);
+            //     readmeURL = blogURL;
+            // }
 
             new_a.text(name);
             //update content
@@ -73,47 +82,114 @@ $(document).ready(function() {
             $('#nav2').append(new_li.clone());
 
 
+        }
+        var share_path;
+        if (file_blog_url == null) {
+
+            //set readme
+            $.get(aboutmeURL, function (result) {
+                share_path = result.path;
+                $("#title").show();
+                $("#article").html("");
+
+                // base64转码
+                var base64 = new Base64();
+                var file_content = base64.decode(result.content);
+
+                testEditormdView = editormd.markdownToHTML("article", {
+                    markdown: file_content, //+ "\r\n" + $("#append-test").text(),
+                    // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
+                    htmlDecode: "style,script,iframe", // you can filter tags decode
+                    //toc             : false,
+                    tocm: true, // Using [TOCM]
+                    //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+                    //gfm             : false,
+                    //tocDropdown     : true,
+                    // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+                    emoji: true,
+                    taskList: true,
+                    tex: true, // 默认不解析
+                    flowChart: true, // 默认不解析
+                    sequenceDiagram: true, // 默认不解析
+                });
+                setShareUrlDom(share_path);
+            });
+        } else {
+            $.get(file_blog_url, function (result) {
+                share_path = result.path;
+
+                // delete '.md'
+                name = result.name;
+                if (name.substr(-3, 3) == ".md") {
+                    name = name.substr(0, name.length - 3);
+                    type = "markdown";
+                } else if (name.substr(-5, 5) == ".html") {
+                    name = name.substr(0, name.length - 5);
+                    type = "html";
+                }
+
+                $("#title").text(name);
+                $("#title").show();
+                $("#article").html("");
+
+                // base64转码
+                var base64 = new Base64();
+                var file_content = base64.decode(result.content);
+
+                testEditormdView = editormd.markdownToHTML("article", {
+                    markdown: file_content, //+ "\r\n" + $("#append-test").text(),
+                    // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
+                    htmlDecode: "style,script,iframe", // you can filter tags decode
+                    //toc             : false,
+                    tocm: true, // Using [TOCM]
+                    //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+                    //gfm             : false,
+                    //tocDropdown     : true,
+                    // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+                    emoji: true,
+                    taskList: true,
+                    tex: true, // 默认不解析
+                    flowChart: true, // 默认不解析
+                    sequenceDiagram: true, // 默认不解析
+                });
+                setShareUrlDom(share_path);
+            });
+
 
         }
 
 
-        //set readme
-        $.get(aboutmeURL, function(result) {
-            $("#title").show();
-            $("#article").html("");
+    })
 
-            // base64转码
-            var base64 = new Base64();
-            var file_content = base64.decode(result.content);
-
-            testEditormdView = editormd.markdownToHTML("article", {
-                markdown: file_content, //+ "\r\n" + $("#append-test").text(),
-                // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
-                htmlDecode: "style,script,iframe", // you can filter tags decode
-                //toc             : false,
-                tocm: true, // Using [TOCM]
-                //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
-                //gfm             : false,
-                //tocDropdown     : true,
-                // markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
-                emoji: true,
-                taskList: true,
-                tex: true, // 默认不解析
-                flowChart: true, // 默认不解析
-                sequenceDiagram: true, // 默认不解析
+    // 复制按钮逻辑
+    $(function () {
+        $("#copy-btn").click(function () {
+            $(this).button('loading').delay(1000).queue(function () {
+                $(this).button('reset');
+                $(this).dequeue();
             });
-
-
 
         });
     });
 
+    var clipboard = new Clipboard('#copy-btn', {
+        text: function () {
+            return $("#current-blogfile-url").text();
+        }
+    });
+
+    clipboard.on('success', function (e) {
+        console.log(e);
+    });
+
+    clipboard.on('error', function (e) {
+        console.log(e);
+    });
 
 
+});
 
-})
-
-function collapseDir(obj){
+function collapseDir(obj) {
     obj = $(obj);
     var new_obj_text = "+" + obj.text().substr(1, obj.text().length);
     obj.text(new_obj_text);
@@ -142,6 +218,7 @@ function setBlogTxt(obj) {
     if (contentURL != "" && (type == "markdown" || type == "html")) {
         // add by liukai ,有时候因为国内原因，直接获取不到文件的raw，改为通过接口获取
         $.get(contentURL, function (result) {
+            share_path = result.path;
             $("#title").show();
             if (type == "markdown") {
 
@@ -172,17 +249,19 @@ function setBlogTxt(obj) {
                 $("#title").hide();
                 $("#article").html(result);
             }
+            setShareUrlDom(share_path);
 
         });
-    }else if (contentURL != "" && type == "dir") {
+    } else if (contentURL != "" && type == "dir") {
         // 如果点击的是目录，则展开子目录
         $("#article").html("请选择目录内文章");
 
-        $.getJSON(contentURL, function(json) {
+        $.getJSON(contentURL, function (json) {
+            share_path = json.path;
             var new_ul = $("<ul class=\"nav nav-sidebar\" id=\"nav\"></ul>");
 
             // 设置样式，计算子节点的padding是父节节点的值加50px
-            var obj_padding_left = obj.css("padding-left").substr(0, obj.css("padding-left").length-2);
+            var obj_padding_left = obj.css("padding-left").substr(0, obj.css("padding-left").length - 2);
             var sub_padding_left = (Number(obj_padding_left) + 40) + "px";
 
 
@@ -204,7 +283,7 @@ function setBlogTxt(obj) {
                     type = "html";
                 }
 
-                if (type == "dir"){
+                if (type == "dir") {
                     name = "+" + name;
                 }
                 // console.log(name);
@@ -240,11 +319,14 @@ function setBlogTxt(obj) {
 
             obj.after(new_ul.clone());
 
+            setShareUrlDom(share_path);
+
         });
 
 
-    }else {
-        $.get(blogURL, function(result) {
+    } else {
+        $.get(blogURL, function (result) {
+            share_path = result.path;
             $("#title").show();
             if (type == "markdown") {
 
@@ -271,12 +353,9 @@ function setBlogTxt(obj) {
                 $("#title").hide();
                 $("#article").html(result);
             }
-
+            setShareUrlDom(share_path);
         });
     }
-
-
-
 
 
     //get comments_url
@@ -295,7 +374,7 @@ function setCommentURL(issuesList, blogName) {
         url: issuesList,
         dataType: 'json',
         async: false,
-        success: function(json) {
+        success: function (json) {
             for (var i = 0; i < json.length; i++) {
                 var title = json[i].title; // Blog title
                 var comments_url = json[i].comments_url;
@@ -316,11 +395,10 @@ function setCommentURL(issuesList, blogName) {
 }
 
 
-
 function setComment(commentURL) {
     $('#commentsList').children().remove();
 
-    $.getJSON(commentURL, function(json) {
+    $.getJSON(commentURL, function (json) {
         for (var i = 0; i < json.length; i++) {
             var avatar_url = json[i].user.avatar_url; // avatar_url
             var user = json[i].user.login;
@@ -372,7 +450,7 @@ function subComment() {
                 "Authorization": "Basic " + btoa(USERNAME + ":" + PASSWORD)
             },
             data: createIssueJson,
-            success: function() {
+            success: function () {
                 console.log('开启评论成功:' + title);
                 //重新遍历issue list
                 setCommentURL(issuesList, title);
@@ -402,7 +480,7 @@ function subComment() {
                 "Authorization": "Basic " + btoa(USERNAME + ":" + PASSWORD)
             },
             data: commentJson,
-            success: function() {
+            success: function () {
                 console.log('评论成功');
 
                 // 更新评论区
@@ -410,7 +488,7 @@ function subComment() {
                     setCommentURL(issuesList, title);
                 }
             },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert("账号密码错误,或者开启了两步验证");
             }
         });
@@ -420,9 +498,38 @@ function subComment() {
 }
 
 
-function getTitleString() {
-    var reg = new RegExp("(^|&)" + "title" + "=([^&]*)(&|$)");
+// function getTitleString() {
+//     var reg = new RegExp("(^|&)" + "title" + "=([^&]*)(&|$)");
+//     var r = window.location.search.substr(1).match(reg);
+//     if (r != null) return decodeURI(r[2]);
+//     return null;
+// }
+
+function getUrlParam(paramname) {
+    var reg = new RegExp("(^|&)" + paramname + "=([^&]*)(&|$)");
     var r = window.location.search.substr(1).match(reg);
     if (r != null) return decodeURI(r[2]);
     return null;
 }
+
+function getPrjUrl() {
+    current_uri = location.href;
+    questionmark_index = current_uri.indexOf('?');
+    var uri = "";
+    if (questionmark_index == 0) {
+        uri = current_uri;
+    } else {
+        uri = current_uri.substr(0, questionmark_index);
+    }
+    return uri;
+}
+
+// 复制逻辑
+function setShareUrlDom(share_path) {
+    uri = getPrjUrl();
+    $("#current-blogfile-url").text(uri + "?p=" + share_path);
+
+}
+
+
+
