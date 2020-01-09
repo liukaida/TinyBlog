@@ -10,6 +10,7 @@
 操作非常简单
 * 直接fork一份到自己仓库中
 * 在仓库setting页面开通github pages
+* 在仓库setting页面开通Issue(非必须，如果你不需要评论功能可不开)
 * 将你自己的md或html文件放到blog目录内
 * 打开https://[yourname].github.io/TinyBlog/查看你发布的内容
 

@@ -139,7 +139,7 @@ $(document).ready(function () {
 
                 testEditormdView = editormd.markdownToHTML("article", {
                     markdown: file_content, //+ "\r\n" + $("#append-test").text(),
-                    // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
+                    htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
                     htmlDecode: "style,script,iframe", // you can filter tags decode
                     //toc             : false,
                     tocm: true, // Using [TOCM]
@@ -232,7 +232,7 @@ function setBlogTxt(obj) {
 
                 testEditormdView = editormd.markdownToHTML("article", {
                     markdown: file_content, //+ "\r\n" + $("#append-test").text(),
-                    // htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
+                    htmlDecode: true, // 开启 HTML 标签解析，为了安全性，默认不开启
                     htmlDecode: "style,script,iframe", // you can filter tags decode
                     //toc             : false,
                     tocm: true, // Using [TOCM]
@@ -533,6 +533,7 @@ function getPrjUrl() {
 function setShareUrlDom(share_path) {
     uri = getPrjUrl();
     $("#current-blogfile-url").text(uri + "?p=" + share_path);
+    $("#title_index").text(share_path);
 
 }
 
