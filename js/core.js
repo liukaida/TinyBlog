@@ -59,6 +59,7 @@ $(document).ready(function () {
 
             if (type == "dir") {
                 name = "+" + name;
+                new_li.attr("data-stopPropagation", "true");
             }
             // console.log(name);
             console.log(type);
@@ -219,6 +220,7 @@ function setBlogTxt(obj) {
         // add by liukai ,有时候因为国内原因，直接获取不到文件的raw，改为通过接口获取
         $.get(contentURL, function (result) {
             share_path = result.path;
+            $("#copy-btn").show();  // 显示复制文章地址的按钮
             $("#title").show();
             if (type == "markdown") {
 
@@ -255,9 +257,9 @@ function setBlogTxt(obj) {
     } else if (contentURL != "" && type == "dir") {
         // 如果点击的是目录，则展开子目录
         $("#article").html("请选择目录内文章");
-
+        $("#copy-btn").hide();  // 目录不显示复制文章地址的按钮
         $.getJSON(contentURL, function (json) {
-            share_path = json.path;
+            // share_path = json.path;
             var new_ul = $("<ul class=\"nav nav-sidebar\" id=\"nav\"></ul>");
 
             // 设置样式，计算子节点的padding是父节节点的值加50px
@@ -285,6 +287,7 @@ function setBlogTxt(obj) {
 
                 if (type == "dir") {
                     name = "+" + name;
+                    new_li.attr("data-stopPropagation", "true");
                 }
                 // console.log(name);
                 console.log(type);
@@ -319,7 +322,7 @@ function setBlogTxt(obj) {
 
             obj.after(new_ul.clone());
 
-            setShareUrlDom(share_path);
+            // setShareUrlDom(share_path);
 
         });
 
@@ -327,6 +330,7 @@ function setBlogTxt(obj) {
     } else {
         $.get(blogURL, function (result) {
             share_path = result.path;
+            $("#copy-btn").show();  // 显示复制文章地址的按钮
             $("#title").show();
             if (type == "markdown") {
 
@@ -516,11 +520,12 @@ function getPrjUrl() {
     current_uri = location.href;
     questionmark_index = current_uri.indexOf('?');
     var uri = "";
-    if (questionmark_index == 0) {
+    if (questionmark_index <= 0) {
         uri = current_uri;
     } else {
         uri = current_uri.substr(0, questionmark_index);
     }
+
     return uri;
 }
 
